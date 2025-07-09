@@ -6,7 +6,7 @@ import os
 app = Flask(__name__)
 
 # OpenAI client setup with secure API key from Replit Secrets
-client = openai.OpenAI(api_key=os.environ['OPENAI_API_KEY'])
+openai.api_key = os.environ['OPENAI_API_KEY']
 
 @app.route("/")
 def home():
