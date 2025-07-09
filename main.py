@@ -5,7 +5,7 @@ import os
 
 app = Flask(__name__)
 
-# OpenAI client setup with secure API key from Replit Secrets
+# OpenAI client setup with secure API key from environment
 openai.api_key = os.environ['OPENAI_API_KEY']
 
 @app.route("/")
@@ -19,17 +19,17 @@ def webhook():
     print(f"From: {sender} | Message: {incoming_msg}")
 
     try:
-        chat = client.chat.completions.create(
+        chat = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are Jess, a smart and friendly WhatsApp assistant who helps users with reminders, tasks, questions, and anything work or personal related."},
                 {"role": "user", "content": incoming_msg}
             ]
         )
-        reply = chat.choices[0].message.content.strip()
+        reply = chat.choices[0].message["content"].strip()
     except Exception as e:
         print("OpenAI Error:", e)
-        reply = "Sorry, I had a brain glitch 🤖"
+        reply = "Jess is confused right now 🧠💥"
 
     response = MessagingResponse()
     response.message(reply)
