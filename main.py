@@ -1,40 +1,37 @@
 from flask import Flask, request
-from twilio.twiml.messaging_response import MessagingResponse
 import openai
 import os
 
 app = Flask(__name__)
 
-# OpenAI client setup with secure API key from environment
-openai.api_key = os.environ['OPENAI_API_KEY']
+# Load your OpenAI API key securely from environment variables
+openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-@app.route("/")
-def home():
-    return "Jess is running ✅😍"
+@app.route("/jess", methods=["POST"])
+def jess_reply():
+    incoming_msg = request.values.get("Body", "").strip()
 
-@app.route("/webhook", methods=["POST"])
-def webhook():
-    incoming_msg = request.values.get('Body', '').strip()
-    sender = request.values.get('From', '')
-    print(f"From: {sender} | Message: {incoming_msg}")
+    if not incoming_msg:
+        return "No message received", 400
 
     try:
-    chat = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are Jess, a smart and friendly WhatsApp assistant who helps users with reminders, tasks, questions, and anything work or personal related."},
-            {"role": "user", "content": incoming_msg}
-        ]
-    )
-    reply = chat.choices[0].message["content"].strip()
-except Exception as e:
-    print("OpenAI Error:", e)
-    reply = "Sorry, I had a brain glitch 🤖"
+        # Create a reply using OpenAI's ChatCompletion
+        chat = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are Jess, a smart and helpful WhatsApp assistant."},
+                {"role": "user", "content": incoming_msg}
+            ]
+        )
+        reply = chat.choices[0].message.content.strip()
+    except Exception as e:
+        reply = "Jess is confused right now. Please try again later."
 
+    return reply, 200
 
-    response = MessagingResponse()
-    response.message(reply)
-    return str(response)
+@app.route("/", methods=["GET"])
+def index():
+    return "Jess AI is up and running!", 200
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(debug=True)
