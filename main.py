@@ -19,17 +19,18 @@ def webhook():
     print(f"From: {sender} | Message: {incoming_msg}")
 
     try:
-        chat = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are Jess, a smart and friendly WhatsApp assistant who helps users with reminders, tasks, questions, and anything work or personal related."},
-                {"role": "user", "content": incoming_msg}
-            ]
-        )
-        reply = chat.choices[0].message["content"].strip()
-    except Exception as e:
-        print("OpenAI Error:", e)
-        reply = "Jess is confused right now 🧠💥"
+    chat = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are Jess, a smart and friendly WhatsApp assistant who helps users with reminders, tasks, questions, and anything work or personal related."},
+            {"role": "user", "content": incoming_msg}
+        ]
+    )
+    reply = chat.choices[0].message["content"].strip()
+except Exception as e:
+    print("OpenAI Error:", e)
+    reply = "Sorry, I had a brain glitch 🤖"
+
 
     response = MessagingResponse()
     response.message(reply)
