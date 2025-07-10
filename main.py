@@ -27,7 +27,8 @@ def webhook():
     try:
         # Attempt to get a response from the AI model
         response = client.chat.completions.create(
-            model="openai/gpt-3.5-turbo", 
+            # --- THIS LINE IS NOW FIXED ---
+            model="mistralai/mistral-7b-instruct:free", 
             messages=[
                 {"role": "system", "content": "You are Jess, a smart and helpful AI assistant. You are concise and friendly."},
                 {"role": "user", "content": incoming_msg}
