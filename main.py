@@ -1,16 +1,17 @@
 import os
-import openai  # ← use legacy import
+import openai
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 
-# ✅ Set API key directly (legacy method)
-openai.api_key = os.environ["OPENAI_API_KEY"]
+# ✅ Use OpenRouter settings
+openai.api_key = os.environ["OPENROUTER_API_KEY"]
+openai.api_base = "https://openrouter.ai/api/v1"  # important for routing to OpenRouter
 
 app = Flask(__name__)
 
 @app.route("/", methods=["GET"])
 def index():
-    return "Jess AI is running."
+    return "Jess AI (OpenRouter version) is running."
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
@@ -18,15 +19,15 @@ def webhook():
     print(f"[WHATSAPP RECEIVED] {incoming_msg}")
     
     try:
-        response = openai.ChatCompletion.create(  # legacy style
-            model="gpt-3.5-turbo",
+        response = openai.ChatCompletion.create(
+            model="openai/gpt-3.5-turbo",  # You can change to "mistralai/mixtral-8x7b" or "meta-llama/llama-3-8b"
             messages=[
                 {"role": "system", "content": "You are Jess, a helpful assistant."},
                 {"role": "user", "content": incoming_msg}
             ]
         )
         answer = response.choices[0].message.content.strip()
-        print(f"[OPENAI RESPONSE] {answer}")
+        print(f"[OPENROUTER RESPONSE] {answer}")
 
         reply = MessagingResponse()
         reply.message(answer)
@@ -35,7 +36,7 @@ def webhook():
     except Exception as e:
         print(f"[ERROR] {e}")
         reply = MessagingResponse()
-        reply.message("Sorry, Jess had a little brain freeze. Please try again.")
+        reply.message("Sorry, Jess had a brain freeze (OpenRouter). Try again.")
         return str(reply)
 
 if __name__ == "__main__":
