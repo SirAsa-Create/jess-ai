@@ -3,10 +3,6 @@ import openai
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 
-# ✅ Use OpenRouter settings
-openai.api_key = os.environ["OPENROUTER_API_KEY"]
-openai.api_base = "https://openrouter.ai/api/v1"  # important for routing to OpenRouter
-
 app = Flask(__name__)
 
 @app.route("/", methods=["GET"])
@@ -20,11 +16,13 @@ def webhook():
     
     try:
         response = openai.ChatCompletion.create(
-            model="openai/gpt-3.5-turbo",  # You can change to "mistralai/mixtral-8x7b" or "meta-llama/llama-3-8b"
+            model="openai/gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are Jess, a helpful assistant."},
                 {"role": "user", "content": incoming_msg}
-            ]
+            ],
+            api_key=os.environ["OPENROUTER_API_KEY"],
+            base_url="https://openrouter.ai/api/v1"
         )
         answer = response.choices[0].message.content.strip()
         print(f"[OPENROUTER RESPONSE] {answer}")
